@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CODSOFT — AI Internship Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B1220;
+    --panel: #121B2E;
+    --panel-2: #0F1A2E;
+    --grid: rgba(255,255,255,0.05);
+    --text: #E7ECF5;
+    --text-dim: #8A97AE;
+    --amber: #F2A65A;
+    --amber-dim: #7A5A34;
+    --teal: #4FD1C5;
+    --teal-dim: #2E7169;
+    --violet: #B48EAD;
+    --violet-dim: #6C4E68;
+    --line: rgba(231,236,245,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  a{ color:inherit; }
+
+  /* ---------- HEADER ---------- */
+  header{
+    max-width:960px;
+    margin:0 auto;
+    padding:64px 24px 40px;
+  }
+  .status-line{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--teal);
+    letter-spacing:0.06em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:24px;
+  }
+  .dot{ width:7px;height:7px;border-radius:50%;background:var(--teal); box-shadow:0 0 6px var(--teal); }
+  h1{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:44px;
+    letter-spacing:-0.01em;
+    margin:0 0 12px;
+  }
+  h1 span{ color:var(--text-dim); }
+  .sub{
+    color:var(--text-dim);
+    font-size:16px;
+    max-width:600px;
+    margin:0 0 28px;
+  }
+  .badges{ display:flex; gap:10px; flex-wrap:wrap; }
+  .badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    padding:6px 12px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- MODULE CARD ---------- */
+  main{ max-width:960px; margin:0 auto; padding:0 24px 80px; }
+  .module{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    margin-bottom:56px;
+    padding:36px 36px 32px;
+  }
+  .module::before, .module::after,
+  .module .corner-tl, .module .corner-br{
+    content:'';
+    position:absolute;
+    width:16px; height:16px;
+    border-color: var(--accent, var(--teal));
+    border-style:solid;
+    border-width:0;
+  }
+  .module::before{ top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .module::after{ bottom:-1px; right:-1px; border-bottom-width:2px; border-right-width:2px; }
+
+  .module.chatbot{ --accent: var(--amber); }
+  .module.tictactoe{ --accent: var(--teal); }
+  .module.recommender{ --accent: var(--violet); }
+
+  .module-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    letter-spacing:0.08em;
+    margin-bottom:10px;
+  }
+  .module h2{
+    font-family:'JetBrains Mono', monospace;
+    font-size:24px;
+    font-weight:500;
+    margin:0 0 10px;
+  }
+  .module p.desc{
+    color:var(--text-dim);
+    font-size:14.5px;
+    max-width:620px;
+    margin:0 0 24px;
+  }
+  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+  .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:3px;
+    background:rgba(255,255,255,0.04);
+    color:var(--text-dim);
+    border:1px solid var(--line);
+  }
+  .repo-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--accent);
+    text-decoration:none;
+    border-bottom:1px dashed var(--accent);
+    padding-bottom:2px;
+  }
+
+  .demo-panel{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:20px;
+    margin-top:8px;
+  }
+  .demo-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:14px;
+  }
+
+  /* ---------- CHATBOT DEMO ---------- */
+  #chat-log{
+    height:220px;
+    overflow-y:auto;
+    padding:8px 4px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .msg{ max-width:80%; padding:9px 13px; border-radius:8px; font-size:14px; }
+  .msg.bot{ background:rgba(242,166,90,0.12); color:var(--text); align-self:flex-start; border:1px solid var(--amber-dim); }
+  .msg.user{ background:rgba(255,255,255,0.06); align-self:flex-end; border:1px solid var(--line); }
+  .chat-input-row{ display:flex; gap:8px; }
+  #chat-input{
+    flex:1;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:4px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+  }
+  #chat-input:focus{ outline:none; border-color:var(--amber); }
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    background:transparent;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    padding:10px 16px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .btn:hover{ background:rgba(255,255,255,0.06); }
+
+  /* ---------- TIC TAC TOE DEMO ---------- */
+  .ttt-wrap{ display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
+  #ttt-board{
+    display:grid;
+    grid-template-columns:repeat(3, 64px);
+    grid-template-rows:repeat(3, 64px);
+    gap:6px;
+  }
+  .cell{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:26px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--text);
+  }
+  .cell:hover{ border-color:var(--teal); }
+  .cell.x{ color:var(--teal); }
+  .cell.o{ color:var(--amber); }
+  #ttt-status{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--text-dim);
+    margin-bottom:14px;
+  }
+
+  /* ---------- RECOMMENDER DEMO ---------- */
+  .rec-controls{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  select{
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:4px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    min-width:220px;
+  }
+  #rec-results{ display:flex; flex-direction:column; gap:8px; min-height:20px; }
+  .rec-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(180,142,173,0.10);
+    border:1px solid var(--violet-dim);
+    border-radius:4px;
+    padding:10px 14px;
+    font-size:14px;
+  }
+  .rec-score{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--violet); }
+
+  footer{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 24px 60px;
+    color:var(--text-dim);
+    font-size:13px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    border-top:1px solid var(--line);
+    padding-top:24px;
+  }
+  footer .mono{ color:var(--text-dim); }
+
+  @media (max-width:600px){
+    h1{ font-size:30px; }
+    .module{ padding:24px 20px; }
+    #ttt-board{ grid-template-columns:repeat(3, 56px); grid-template-rows:repeat(3, 56px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="status-line"><span class="dot"></span>internship_status: 3 / 3 tasks complete — ready for review</div>
+  <h1>CODSOFT <span>// artificial intelligence</span></h1>
+  <p class="sub">A working dashboard for the three tasks submitted for the CodSoft AI internship. Every demo below runs the actual logic from the Python scripts in this repository, reimplemented in JavaScript so you can try it right here.</p>
+  <div class="badges">
+    <span class="badge">python 3</span>
+    <span class="badge">minimax + alpha-beta</span>
+    <span class="badge">tf-idf / cosine similarity</span>
+    <span class="badge">regex nlp</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- TASK 1: CHATBOT -->
+  <section class="module chatbot">
+    <div class="module-eyebrow mono">TASK 01 / chatbot.py</div>
+    <h2>Rule-based chatbot</h2>
+    <p class="desc">Responds to user input using regex pattern matching against a rule table — greetings, small talk, time/date queries, and exit commands — falling back to a generic reply when nothing matches.</p>
+    <div class="tag-row">
+      <span class="tag">re</span><span class="tag">pattern matching</span><span class="tag">conversation loop</span>
+    </div>
+    <a class="repo-link" href="./Task1_Chatbot" target="_blank">view source →</a>
+
+    <div class="demo-panel" style="margin-top:20px;">
+      <div class="demo-label">live demo — try "hi", "what time is it", "thanks", "bye"</div>
+      <div id="chat-log"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="Type a message and press enter…" />
+        <button class="btn" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK 2: TIC TAC TOE -->
+  <section class="module tictactoe">
+    <div class="module-eyebrow mono">TASK 02 / tic_tac_toe.py</div>
+    <h2>Tic-tac-toe AI</h2>
+    <p class="desc">An unbeatable opponent built with the Minimax algorithm and alpha-beta pruning. It evaluates every possible future board state and always plays optimally — the best you can achieve is a draw.</p>
+    <div class="tag-row">
+      <span class="tag">minimax</span><span class="tag">alpha-beta pruning</span><span class="tag">game trees</span>
+    </div>
+    <a class="repo-link" href="./Task2_TicTacToe_AI" target="_blank">view source →</a>
+
+    <div class="demo-panel" style="margin-top:20px;">
+      <div class="demo-label">live demo — you are X, the AI is O</div>
+      <div class="ttt-wrap">
+        <div>
+          <div id="ttt-status">your move</div>
+          <div id="ttt-board"></div>
+        </div>
+        <button class="btn" onclick="resetTTT()" style="align-self:flex-start; margin-top:20px;">New game</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASK 4: RECOMMENDER -->
+  <section class="module recommender">
+    <div class="module-eyebrow mono">TASK 04 / recommender.py</div>
+    <h2>Recommendation system</h2>
+    <p class="desc">Content-based movie recommender. Each title is described by a set of genre/keyword tags; similarity between movies is scored by tag overlap (the demo below mirrors the TF-IDF + cosine similarity approach used in the Python version).</p>
+    <div class="tag-row">
+      <span class="tag">content-based filtering</span><span class="tag">tf-idf</span><span class="tag">cosine similarity</span>
+    </div>
+    <a class="repo-link" href="./Task4_Recommendation_System" target="_blank">view source →</a>
+
+    <div class="demo-panel" style="margin-top:20px;">
+      <div class="demo-label">live demo — pick a movie you like</div>
+      <div class="rec-controls">
+        <select id="movie-select"></select>
+        <button class="btn" onclick="recommend()">Recommend</button>
+      </div>
+      <div id="rec-results"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="mono">github.com/agpriyanshi1111-debug/CODSOFT</span>
+  <span class="mono">#codsoft #internship #artificialintelligence</span>
+</footer>
+
+<script>
+/* ============ TASK 1: CHATBOT LOGIC (mirrors chatbot.py) ============ */
+const rules = [
+  { pattern: /\b(hi|hello|hey|good morning|good evening)\b/i,
+    responses: ["Hello there! How can I help you today?", "Hi! What can I do for you?", "Hey! Nice to hear from you."] },
+  { pattern: /\bhow are you\b/i,
+    responses: ["I'm just a program, but I'm running smoothly! How about you?", "Doing great, thanks for asking!"] },
+  { pattern: /\byour name\b/i,
+    responses: ["I'm CODSOFT-Bot, a simple rule-based chatbot."] },
+  { pattern: /\btime\b/i, dynamic: "time" },
+  { pattern: /\b(date|day)\b/i, dynamic: "date" },
+  { pattern: /\bweather\b/i,
+    responses: ["I can't check live weather yet, but I hope it's sunny where you are!"] },
+  { pattern: /\b(thank you|thanks)\b/i,
+    responses: ["You're welcome!", "Anytime!", "Glad I could help."] },
+  { pattern: /\b(bye|goodbye|exit|quit)\b/i, exit: true },
+  { pattern: /\bhelp\b/i,
+    responses: ["I can chat about greetings, tell you the time/date, or just talk. Type 'bye' to exit."] },
+  { pattern: /\bwho (made|created) you\b/i,
+    responses: ["I was built as part of the CodSoft AI Internship, Task 1!"] },
+];
+const fallback = ["I'm not sure I understand. Could you rephrase that?", "Interesting! Tell me more.", "I don't have a rule for that yet, but I'm learning!"];
+
+function getBotReply(text){
+  for(const rule of rules){
+    if(rule.pattern.test(text)){
+      if(rule.dynamic === "time") return "The current time is " + new Date().toLocaleTimeString() + ".";
+      if(rule.dynamic === "date") return "Today's date is " + new Date().toLocaleDateString() + ".";
+      if(rule.exit) return "Goodbye! Have a great day.";
+      return rule.responses[Math.floor(Math.random()*rule.responses.length)];
+    }
+  }
+  return fallback[Math.floor(Math.random()*fallback.length)];
+}
+
+const chatLog = document.getElementById('chat-log');
+function addMsg(text, who){
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+function sendChat(){
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+  addMsg(text, 'user');
+  input.value = '';
+  setTimeout(()=> addMsg(getBotReply(text), 'bot'), 250);
+}
+document.getElementById('chat-input').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendChat(); });
+addMsg("Hello! I'm a rule-based chatbot. Type 'bye' to exit.", 'bot');
+
+/* ============ TASK 2: TIC-TAC-TOE MINIMAX (mirrors tic_tac_toe.py) ============ */
+const HUMAN='X', AI='O', EMPTY=null;
+let board, gameOver;
+
+function checkWinner(b, player){
+  const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return wins.some(c => c.every(i => b[i]===player));
+}
+function isFull(b){ return b.every(c=>c!==EMPTY); }
+
+function minimax(b, depth, isMax, alpha, beta){
+  if(checkWinner(b, AI)) return 10-depth;
+  if(checkWinner(b, HUMAN)) return depth-10;
+  if(isFull(b)) return 0;
+
+  if(isMax){
+    let best=-Infinity;
+    for(let i=0;i<9;i++){
+      if(b[i]===EMPTY){
+        b[i]=AI;
+        best=Math.max(best, minimax(b, depth+1, false, alpha, beta));
+        b[i]=EMPTY;
+        alpha=Math.max(alpha, best);
+        if(beta<=alpha) break;
+      }
+    }
+    return best;
+  } else {
+    let best=Infinity;
+    for(let i=0;i<9;i++){
+      if(b[i]===EMPTY){
+        b[i]=HUMAN;
+        best=Math.min(best, minimax(b, depth+1, true, alpha, beta));
+        b[i]=EMPTY;
+        beta=Math.min(beta, best);
+        if(beta<=alpha) break;
+      }
+    }
+    return best;
+  }
+}
+function bestMove(b){
+  let bestScore=-Infinity, move=null;
+  for(let i=0;i<9;i++){
+    if(b[i]===EMPTY){
+      b[i]=AI;
+      const score = minimax(b, 0, false, -Infinity, Infinity);
+      b[i]=EMPTY;
+      if(score>bestScore){ bestScore=score; move=i; }
+    }
+  }
+  return move;
+}
+
+const tttBoardEl = document.getElementById('ttt-board');
+const tttStatusEl = document.getElementById('ttt-status');
+
+function renderTTT(){
+  tttBoardEl.innerHTML='';
+  board.forEach((val, i)=>{
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (val==='X' ? ' x' : val==='O' ? ' o' : '');
+    cell.textContent = val || '';
+    cell.onclick = ()=> humanMove(i);
+    tttBoardEl.appendChild(cell);
+  });
+}
+function humanMove(i){
+  if(gameOver || board[i]!==EMPTY) return;
+  board[i]=HUMAN;
+  renderTTT();
+  if(checkWinner(board, HUMAN)){ tttStatusEl.textContent='you win! (the AI made a mistake — try New game)'; gameOver=true; return; }
+  if(isFull(board)){ tttStatusEl.textContent="it's a draw"; gameOver=true; return; }
+  tttStatusEl.textContent='AI is thinking…';
+  setTimeout(()=>{
+    const move = bestMove(board);
+    board[move]=AI;
+    renderTTT();
+    if(checkWinner(board, AI)){ tttStatusEl.textContent='AI wins — better luck next time'; gameOver=true; return; }
+    if(isFull(board)){ tttStatusEl.textContent="it's a draw"; gameOver=true; return; }
+    tttStatusEl.textContent='your move';
+  }, 300);
+}
+function resetTTT(){
+  board = Array(9).fill(EMPTY);
+  gameOver = false;
+  tttStatusEl.textContent = 'your move';
+  renderTTT();
+}
+resetTTT();
+
+/* ============ TASK 4: RECOMMENDER (tag-overlap similarity) ============ */
+const movies = [
+  { title: "The Matrix", tags: "action sci-fi hacker dystopia virtual reality" },
+  { title: "Inception", tags: "action sci-fi dream heist thriller mind-bending" },
+  { title: "Interstellar", tags: "sci-fi space time travel drama exploration" },
+  { title: "The Dark Knight", tags: "action crime superhero thriller batman" },
+  { title: "Batman Begins", tags: "action superhero origin batman thriller" },
+  { title: "The Notebook", tags: "romance drama love story emotional" },
+  { title: "Titanic", tags: "romance drama tragedy love story ship" },
+  { title: "Toy Story", tags: "animation family comedy adventure friendship" },
+  { title: "Finding Nemo", tags: "animation family adventure ocean friendship" },
+  { title: "John Wick", tags: "action revenge assassin thriller gun-fu" },
+];
+
+const movieSelect = document.getElementById('movie-select');
+movies.forEach(m=>{
+  const opt = document.createElement('option');
+  opt.value = m.title;
+  opt.textContent = m.title;
+  movieSelect.appendChild(opt);
+});
+
+function tagSet(tags){ return new Set(tags.split(' ')); }
+function jaccard(a,b){
+  const inter = [...a].filter(x=>b.has(x)).length;
+  const union = new Set([...a, ...b]).size;
+  return union===0 ? 0 : inter/union;
+}
+
+function recommend(){
+  const chosenTitle = movieSelect.value;
+  const chosen = movies.find(m=>m.title===chosenTitle);
+  const chosenTags = tagSet(chosen.tags);
+
+  const scored = movies
+    .filter(m=>m.title!==chosenTitle)
+    .map(m=>({ title:m.title, score: jaccard(chosenTags, tagSet(m.tags)) }))
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3);
+
+  const resultsEl = document.getElementById('rec-results');
+  resultsEl.innerHTML='';
+  scored.forEach(s=>{
+    const div = document.createElement('div');
+    div.className='rec-item';
+    div.innerHTML = `<span>${s.title}</span><span class="rec-score">similarity ${(s.score*100).toFixed(0)}%</span>`;
+    resultsEl.appendChild(div);
+  });
+}
+recommend();
+</script>
+
+</body>
+</html>
